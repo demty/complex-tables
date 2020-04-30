@@ -1,0 +1,178 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+frontend/coverage
+.cache
+nosetests.xml
+coverage.xml
+*.pickled
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+### JetBrains template
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
+
+*.iml
+
+## Directory-based project format:
+.idea/
+# if you remove the above rule, at least ignore the following:
+
+# User-specific stuff:
+# .idea/workspace.xml
+# .idea/tasks.xml
+# .idea/dictionaries
+
+# Sensitive or high-churn files:
+# .idea/dataSources.ids
+# .idea/dataSources.xml
+# .idea/sqlDataSources.xml
+# .idea/dynamic.xml
+# .idea/uiDesigner.xml
+
+# Gradle:
+# .idea/gradle.xml
+# .idea/libraries
+
+# Mongo Explorer plugin:
+# .idea/mongoSettings.xml
+
+## File-based project format:
+*.ipr
+*.iws
+
+## Plugin-specific files:
+
+# IntelliJ
+out/
+
+# emacs and plugins
+.projectile
+*~
+\#*\#
+.\#*
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# JIRA plugin
+atlassian-ide-plugin.xml
+
+# emacs plugins
+.projectile
+*~
+\#*\#
+.\#*
+
+# Crashlytics plugin (for Android Studio and IntelliJ)
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+
+frontend/static/js/locale/*.js
+frontend/static/js/*.packed.js
+frontend/static/js/*.packed.js.map
+node_modules
+
+grape/_rel
+grape/ebin
+grape/deps
+grape/rel
+
+.vagrant/
+
+notify/.erlang.mk/
+notify/_rel/
+notify/deps/
+notify/ebin/
+notify/notify.d
+notify/pkg/notify_*
+notify/relx
+
+frontend/static/landing/css/
+# ???
+frontend/static/css/main.css
+frontend/static/css/main.less.css
+
+*.sublime-project
+*.sublime-workspace
+
+uploads/
+backend/scripts/Plaut
+
+extensions/chrome/data/content.js.map
+extensions/firefox/data/content.js.map
+frontend/static/css/maps/
+frontend/static/landing-2016/css/
+frontend/static/less/common/redactor.css
+frontend/static/landing-2016/package-lock.json
+#frontend/package-lock.json
+#package-lock.json
+.vscode/
+.settings/
+.project
+.pydevproject
+backend/util/parse/avito/
+
+# os misc
+.DS_Store
+
+# ansible
+*.retry
+
+.venv
+.virtualenv
+backend/.venv
+hfapi/.venv
+.python-version
+
+frontend/.eslintcache
+.eslintcache
+
+.storybook-out

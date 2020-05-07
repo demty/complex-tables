@@ -45,21 +45,22 @@ class Base:
 
 class Generator(Base):
     def __init__(
-        self,
-        schema,
-        header,
-        is_table,
-        row_field,
-        is_row_header,
-        is_container,
-        head=False,
-        parent=None,
+            self,
+            schema,
+            header,
+            is_table,
+            row_field,
+            is_row_header,
+            is_container,
+            head=False,
+            parent=None,
     ):
         self.schema = schema
         self.current_row = None
         self.x = 0
         self.y = 0
         self.max_x = 0
+        self.max_y = 0
         self.fields_generators: List[Base] = []
         self.parent = parent
         self.parents_rows = []  # TODO
@@ -101,6 +102,7 @@ class Generator(Base):
         yield cell
         self.max_x = max(self.max_x, cell.x)
         self.y += 1
+        self.max_y = max(self.max_y, cell.y)
 
     def process_container(self, field_generator, row):
         for cell in field_generator.process_value(
@@ -117,6 +119,7 @@ class Generator(Base):
                 cell.x += 1
             yield cell
             self.max_x = max(self.max_x, cell.x)
+            self.max_y = max(self.max_y, cell.y)
 
     def process_row_header(self, field_generator, row):
         for cell in field_generator.process_value(
@@ -125,8 +128,22 @@ class Generator(Base):
             yield cell
             self.max_x = max(self.max_x, cell.x)
 
+    def process_table(self, field_generator, row):
+        # TODO: Test with two fields
+        for inner_row in row[field_generator.row_field]:
+            for cell in field_generator.process_value(
+                    inner_row
+            ):
+                self.max_y += 1
+                cell.y += self.max_y
+                yield cell
+                self.max_x = max(self.max_x, cell.x)
+                self.max_y = max(self.max_y, cell.y)
+                self.y += 1
+
     def process_value(self, row):
         self.max_x = self.x
+        self.max_y = self.y
         if self.row_header_exists:
             self.x += 1
         for field_generator in self.fields_generators:
@@ -137,9 +154,7 @@ class Generator(Base):
             elif field_generator.is_row_header:
                 yield from self.process_row_header(field_generator, row)
             elif field_generator.is_table:
-                # TODO: implement
-                self.process_table()
-                raise NotImplementedError()
+                yield from self.process_table(field_generator, row)
         self.x = self.max_x + 1
         if self.head:
             self.shift_x(self.x)
@@ -205,6 +220,11 @@ rows = [
             "test4": "test4",
             "test": {"test1": "test_row_header_1", "test2": "test_row_header_2"},
         },
+        "test_table": [
+            {"test_table_f1": "ttf1"},
+            {"test_table_f1": "ttf1"},
+            {"test_table_f1": "ttf1"},
+        ]
     },
     {
         "id": 1,
@@ -216,6 +236,11 @@ rows = [
             "test4": "test4",
             "test": {"test1": "test_row_header_1", "test2": "test_row_header_2"},
         },
+        "test_table": [
+            {"test_table_f1": "ttf1"},
+            {"test_table_f1": "ttf1"},
+            {"test_table_f1": "ttf1"},
+        ]
     },
     {
         "id": 1,
@@ -227,12 +252,15 @@ rows = [
             "test4": "test4",
             "test": {"test1": "test_row_header_1", "test2": "test_row_header_2"},
         },
+        "test_table": [
+            {"test_table_f1": "ttf1"},
+            {"test_table_f1": "ttf1"},
+            {"test_table_f1": "ttf1"},
+        ]
     },
 ]
 
-
 fields_map = {"integer": IntegerField, "string": StringField}
-
 
 result = []
 generator = Generator(
@@ -257,6 +285,13 @@ generator = Generator(
                 },
             ],
         },
+        {
+            "row_field": "test_table",
+            "type": "table",
+            "fields": [
+                {"row_field": "test_table_f1", "type": "string"},
+            ]
+        }
     ],
     header=None,
     is_table=False,

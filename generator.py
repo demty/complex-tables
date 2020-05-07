@@ -59,6 +59,7 @@ class Generator(Base):
         self.current_row = None
         self.x = 0
         self.y = 0
+        self.max_x = 0
         self.fields_generators: List[Base] = []
         self.parent = parent
         self.parents_rows = []  # TODO
@@ -92,52 +93,54 @@ class Generator(Base):
     def __str__(self):
         return f"Generator(id: {self.id}, x: {self.x}, y: {self.y})"
 
+    def process_flat_field(self, field_generator, row):
+        cell = field_generator.process_value(
+            self.x, self.y, row[field_generator.row_field]
+        )
+        logging.debug("%s from %s", cell, generator)
+        yield cell
+        self.max_x = max(self.max_x, cell.x)
+        self.y += 1
+
+    def process_container(self, field_generator, row):
+        for cell in field_generator.process_value(
+                row[field_generator.row_field]
+        ):
+            logging.debug(
+                "%s summed y %s, result: y: %s",
+                cell,
+                generator,
+                cell.y + self.y,
+            )
+            cell.y = cell.y + self.y
+            if self.row_header_exists:
+                cell.x += 1
+            yield cell
+            self.max_x = max(self.max_x, cell.x)
+
+    def process_row_header(self, field_generator, row):
+        for cell in field_generator.process_value(
+                row[field_generator.row_field]
+        ):
+            yield cell
+            self.max_x = max(self.max_x, cell.x)
+
     def process_value(self, row):
-        # TODO: move to class variables
-        max_x = self.x
+        self.max_x = self.x
         if self.row_header_exists:
             self.x += 1
         for field_generator in self.fields_generators:
             if field_generator.is_flat_field:
-                # TODO: refactor
-                self.process_flat_field()
-                cell = field_generator.process_value(
-                    self.x, self.y, row[field_generator.row_field]
-                )
-                logging.debug("%s from %s", cell, generator)
-                yield cell
-                max_x = max(max_x, cell.x)
-                self.y += 1
+                yield from self.process_flat_field(field_generator, row)
             elif field_generator.is_container:
-                self.process_container()
-                for cell in field_generator.process_value(
-                    row[field_generator.row_field]
-                ):
-                    # if not field_generator.is_row_header():
-                    logging.debug(
-                        "%s summed y %s, result: y: %s",
-                        cell,
-                        generator,
-                        cell.y + self.y,
-                    )
-                    cell.y = cell.y + self.y
-                    if self.row_header_exists:
-                        cell.x += 1
-                    yield cell
-                    max_x = max(max_x, cell.x)
+                yield from self.process_container(field_generator, row)
             elif field_generator.is_row_header:
-                # TODO: refactor
-                self.process_row_header()
-                for cell in field_generator.process_value(
-                    row[field_generator.row_field]
-                ):
-                    yield cell
-                    max_x = max(max_x, cell.x)
+                yield from self.process_row_header(field_generator, row)
             elif field_generator.is_table:
                 # TODO: implement
                 self.process_table()
                 raise NotImplementedError()
-        self.x = max_x + 1
+        self.x = self.max_x + 1
         if self.head:
             self.shift_x(self.x)
         self.y = 0
@@ -260,6 +263,7 @@ generator = Generator(
     row_field=None,
     is_row_header=False,
     head=True,
+    is_container=True,
 )
 # logging.basicConfig(level="DEBUG")
 generator.generate_field_from_schema()
@@ -268,7 +272,11 @@ for row_ in rows:
         print(cell_)
     print("-" * 8)
 
-# TODO: rework to iterative generation
 # TODO: implement table entity
 # TODO: implement "transpose" key
+# TODO: add table headers
 # TODO: mypy
+# TODO: add row_data support
+# TODO: tests
+# TODO: refactor: too many class vars, they look pretty ugly
+# TODO: rework to iterative generation (is it possible for table entity???)
